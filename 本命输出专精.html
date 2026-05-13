@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>瑶服 · 本命输出专精适配问卷</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f1c;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 主卡片 */
+        .quiz-container {
+            max-width: 780px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(8, 22, 36, 0.92);
+            backdrop-filter: blur(4px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(52, 112, 255, 0.3);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* 头部大标题 + 副标题 */
+        .hero-header {
+            text-align: center;
+            padding: 1.8rem 1.5rem 0.8rem 1.5rem;
+            border-bottom: 1px solid #244b6e;
+            background: linear-gradient(145deg, #0a1727, #05131f);
+        }
+        .main-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f9e0a0, #c9a53b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: #b8d0ff;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            word-break: keep-all;
+            background: #0f2638b3;
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+        }
+
+        /* 进度条区域 */
+        .progress-area {
+            padding: 1.2rem 2rem 0.5rem 2rem;
+        }
+        .progress-bar-bg {
+            background: #1e3349;
+            border-radius: 60px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #e4a22d, #ffcd6b);
+            width: 0%;
+            height: 100%;
+            border-radius: 60px;
+            transition: width 0.25s ease;
+        }
+        .counter-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            color: #b3caf5;
+            font-weight: 500;
+        }
+
+        /* 分页主体 */
+        .pages-wrapper {
+            position: relative;
+            min-height: 460px;
+            padding: 0.5rem 2rem 1rem 2rem;
+        }
+        .question-page {
+            display: none;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .question-page.active-page {
+            display: block;
+            animation: fadeSlide 0.25s forwards;
+        }
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateX(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 卡片样式 */
+        .question-card {
+            background: #0e1a27cc;
+            border-radius: 2rem;
+            padding: 1.8rem 1.5rem;
+            border: 1px solid #3c6085;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        }
+        .q-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            color: #f2e8cf;
+            letter-spacing: -0.2px;
+        }
+        .q-num-badge {
+            display: inline-block;
+            background: #1f4b6e;
+            border-radius: 60px;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.8rem;
+            margin-bottom: 0.8rem;
+            color: #ffefb9;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            margin: 1.2rem 0 0.8rem;
+        }
+        .option-label {
+            background: #071a29;
+            border: 1px solid #2d5477;
+            border-radius: 60px;
+            padding: 0.7rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #dfebff;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        input[type="radio"] {
+            display: none;
+        }
+        input[type="radio"]:checked + .option-label {
+            background: #c9771e;
+            border-color: #ffbc6e;
+            color: #0f1c24;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px rgba(255, 180, 70, 0.6);
+        }
+        .option-label:hover {
+            background: #1f4668;
+            border-color: #e6a645;
+            transform: scale(0.98);
+        }
+
+        /* 底部按钮 (隐藏上一题/下一题，但保留占位以支持功能；自动跳转后其实用不到点击跳转，但不移除，用备用) */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 1rem;
+            padding: 0 2rem 1.8rem 2rem;
+        }
+        .btn {
+            background: #142b3c;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #e2edff;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            border: 1px solid #3e6e8f;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(95deg, #bd7b2a, #9b5e1f);
+            border-color: #e0a449;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(95deg, #dc953f, #b87324);
+        }
+        .btn-secondary {
+            background: #1f405b;
+        }
+        .btn-secondary:hover {
+            background: #2e577a;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        /* 结果区域 */
+        .result-area {
+            margin-top: 0;
+            padding: 1.5rem 2rem 2rem;
+            background: #071a27e0;
+            border-top: 1px solid #936e34;
+            border-radius: 0 0 2rem 2rem;
+        }
+        .result-title {
+            font-size: 1.7rem;
+            font-weight: bold;
+            text-align: center;
+            color: #ffe5a3;
+            margin-bottom: 1rem;
+        }
+        .rec-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        /* 修复黑色文字看不清: 强制白/金色系 */
+        .rec-item {
+            background: #fef7e0;
+            border-radius: 1.4rem;
+            padding: 1.2rem 1.4rem;
+            border-left: 8px solid;
+            transition: 0.1s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .rec-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 10px;
+            color: #1a2c3b;
+        }
+        .rec-tag {
+            font-size: 0.7rem;
+            background: #c9c2a8;
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #1f2e3c;
+        }
+        .rec-reason {
+            margin-top: 8px;
+            color: #2c3e2f;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            font-weight: 500;
+        }
+        .footnote {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 1.2rem;
+            color: #cae0ff;
+        }
+        .reset-btn {
+            background: #302012;
+            margin-top: 1.2rem;
+            width: 100%;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 60px;
+            color: #ffeaac;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #d9952e;
+        }
+        .reset-btn:hover {
+            background: #4f351b;
+            color: white;
+        }
+        @media (max-width: 550px) {
+            .pages-wrapper {
+                padding: 0.5rem 1rem 1rem 1rem;
+            }
+            .question-card {
+                padding: 1.2rem;
+            }
+            .q-title {
+                font-size: 1.2rem;
+            }
+            .option-label {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            .main-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="quizApp">
+    <!-- 大标题 & 副标题 -->
+    <div class="hero-header">
+        <div class="main-title">你的本命输出专精是哪个？</div>
+        <div class="subtitle">瑶服 Q群722409645</div>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-area" id="progressArea">
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="counter-text">
+            <span id="currentIdxDisplay">第1题</span>
+            <span id="totalCountDisplay">/ 10题</span>
+        </div>
+    </div>
+
+    <!-- 动态分页容器 -->
+    <div class="pages-wrapper" id="pagesContainer"></div>
+
+    <!-- 底部按钮 (供手动切换备用，但自动跳转为主，用户也可以点，保留完整交互) -->
+    <div class="nav-buttons" id="navButtonsArea">
+        <button class="btn btn-secondary" id="prevBtn">◀ 上一题</button>
+        <button class="btn btn-primary" id="nextBtn">下一题 ▶</button>
+    </div>
+
+    <!-- 结果区域 (初始隐藏) -->
+    <div id="resultArea" style="display: none;"></div>
+</div>
+
+<script>
+    // ---------- 24专精数据 (特征匹配版，纯标签不涉及分数霸榜) ----------
+    const specsData = [
+        { name:"射击猎", range:"远程", cast:"少", difficulty:"简单", style:"爆发", scenario:"AOE", survival:"无所谓", swap:"快", teamTend:"中等", pace:"都喜欢", rotation:"优先级" },
+        { name:"武器战", range:"近战", cast:"无", difficulty:"较难", style:"爆发", scenario:"AOE", survival:"硬一点", swap:"可以慢", teamTend:"低", pace:"团本", rotation:"优先级" },
+        { name:"冰法", range:"远程", cast:"较多", difficulty:"适中", style:"适中", scenario:"均衡", survival:"无所谓", swap:"快", teamTend:"高", pace:"都喜欢", rotation:"优先级" },
+        { name:"冰DK", range:"近战", cast:"无", difficulty:"简单", style:"适中", scenario:"均衡", survival:"硬一点", swap:"可以慢", teamTend:"高", pace:"大秘境", rotation:"固定" },
+        { name:"踏风", range:"近战", cast:"极少", difficulty:"较难", style:"爆发", scenario:"均衡", survival:"愿意牺牲", swap:"快", teamTend:"低", pace:"大秘境", rotation:"优先级" },
+        { name:"痛苦术", range:"远程", cast:"较多", difficulty:"简单", style:"平稳", scenario:"单体", survival:"愿意牺牲", swap:"可以慢", teamTend:"高", pace:"团本", rotation:"优先级" },
+        { name:"元素萨", range:"远程", cast:"较多", difficulty:"简单", style:"适中", scenario:"AOE", survival:"硬一点", swap:"快", teamTend:"高", pace:"都喜欢", rotation:"优先级" },
+        { name:"浩劫", range:"近战", cast:"极少", difficulty:"简单", style:"适中", scenario:"均衡", survival:"无所谓", swap:"快", teamTend:"低", pace:"大秘境", rotation:"固定" },
+        { name:"增强萨", range:"近战", cast:"无", difficulty:"简单", style:"平稳", scenario:"均衡", survival:"硬一点", swap:"可以慢", teamTend:"中等", pace:"都喜欢", rotation:"优先级" },
+        { name:"惩戒骑", range:"近战", cast:"无", difficulty:"简单", style:"适中", scenario:"AOE", survival:"硬一点", swap:"可以慢", teamTend:"高", pace:"都喜欢", rotation:"固定" },
+        { name:"狂徒", range:"近战", cast:"无", difficulty:"较难", style:"适中", scenario:"均衡", survival:"愿意牺牲", swap:"快", teamTend:"低", pace:"大秘境", rotation:"优先级" },
+        { name:"敏锐", range:"近战", cast:"无", difficulty:"极难", style:"爆发", scenario:"单体", survival:"愿意牺牲", swap:"快", teamTend:"低", pace:"团本", rotation:"优先级" },
+        { name:"狂暴战", range:"近战", cast:"无", difficulty:"简单", style:"适中", scenario:"均衡", survival:"无所谓", swap:"可以慢", teamTend:"低", pace:"都喜欢", rotation:"固定" },
+        { name:"火法", range:"远程", cast:"较少", difficulty:"适中", style:"适中", scenario:"AOE", survival:"无所谓", swap:"快", teamTend:"中等", pace:"大秘境", rotation:"优先级" },
+        { name:"奥法", range:"远程", cast:"很多", difficulty:"较难", style:"爆发", scenario:"单体", survival:"愿意牺牲", swap:"可以慢", teamTend:"中等", pace:"团本", rotation:"优先级" },
+        { name:"鸟德", range:"远程", cast:"较多", difficulty:"适中", style:"平稳", scenario:"均衡", survival:"硬一点", swap:"快", teamTend:"高", pace:"都喜欢", rotation:"优先级" },
+        { name:"猫德", range:"近战", cast:"无", difficulty:"适中", style:"适中", scenario:"均衡", survival:"愿意牺牲", swap:"快", teamTend:"低", pace:"大秘境", rotation:"优先级" },
+        { name:"毁灭术", range:"远程", cast:"很多", difficulty:"较难", style:"适中", scenario:"单体", survival:"无所谓", swap:"可以慢", teamTend:"中等", pace:"团本", rotation:"优先级" },
+        { name:"邪DK", range:"近战", cast:"无", difficulty:"较难", style:"适中", scenario:"AOE", survival:"硬一点", swap:"可以慢", teamTend:"高", pace:"都喜欢", rotation:"优先级" },
+        { name:"刺杀", range:"近战", cast:"无", difficulty:"简单", style:"适中", scenario:"单体", survival:"无所谓", swap:"可以慢", teamTend:"低", pace:"团本", rotation:"优先级" },
+        { name:"暗牧", range:"远程", cast:"很多", difficulty:"较难", style:"平稳", scenario:"均衡", survival:"愿意牺牲", swap:"快", teamTend:"高", pace:"团本", rotation:"优先级" },
+        { name:"恶魔术", range:"远程", cast:"较少", difficulty:"简单", style:"平稳", scenario:"单体", survival:"硬一点", swap:"可以慢", teamTend:"中等", pace:"都喜欢", rotation:"固定" },
+        { name:"生存猎", range:"近战", cast:"无", difficulty:"较难", style:"适中", scenario:"均衡", survival:"愿意牺牲", swap:"快", teamTend:"低", pace:"大秘境", rotation:"优先级" },
+        { name:"兽王猎", range:"远程", cast:"无", difficulty:"简单", style:"适中", scenario:"单体", survival:"无所谓", swap:"快", teamTend:"中等", pace:"都喜欢", rotation:"固定" }
+    ];
+
+    // ---------- 10道题定义 ----------
+    const questions = [
+        { id: 0, text: "你喜欢近战还是远程？", options: ["近战", "远程"], mapKey: "range", mapping: null },
+        { id: 1, text: "你能接受读条技能吗？", options: ["完全不读条（瞬发爽感）", "少量读条可以接受", "读条是核心玩法（法师/术士魂）"], mapKey: "cast", mapping: { "完全不读条（瞬发爽感）":"无", "少量读条可以接受":"少,极少", "读条是核心玩法（法师/术士魂）":"较多,很多" } },
+        { id: 2, text: "你期望的操作难度？", options: ["简单（轻松上手）", "适中（有点挑战）", "较难（需要练习）", "我就喜欢极难的！"], mapKey: "difficulty", mapping: { "简单（轻松上手）":"简单", "适中（有点挑战）":"适中", "较难（需要练习）":"较难", "我就喜欢极难的！":"极难" } },
+        { id: 3, text: "输出风格偏好", options: ["高爆发（一波上天）", "平稳输出（持续压血）", "适中（两者兼得）"], mapKey: "style", mapping: { "高爆发（一波上天）":"爆发", "平稳输出（持续压血）":"平稳", "适中（两者兼得）":"适中" } },
+        { id: 4, text: "你最擅长的战斗场景", options: ["单体BOSS（击杀精英）", "大量AOE（清小怪）", "均衡发挥"], mapKey: "scenario", mapping: { "单体BOSS（击杀精英）":"单体", "大量AOE（清小怪）":"AOE", "均衡发挥":"均衡" } },
+        { id: 5, text: "生存能力要求", options: ["我要硬一点（生存好）", "无所谓，能打就行", "愿意为伤害牺牲生存"], mapKey: "survival", mapping: { "我要硬一点（生存好）":"硬一点", "无所谓，能打就行":"无所谓", "愿意为伤害牺牲生存":"愿意牺牲" } },
+        { id: 6, text: "转火能力（快速切目标）", options: ["必须快（灵活性强）", "可以慢一点（不频繁切目标）", "无所谓"], mapKey: "swap", mapping: { "必须快（灵活性强）":"快", "可以慢一点（不频繁切目标）":"可以慢", "无所谓":"可以慢,快" } },
+        { id: 7, text: "你对「团队贡献」的态度是？", options: ["我愿意为团队牺牲个人输出/生存", "我可以接受适度的团队要求", "我优先考虑自己玩得爽，团队次要"], mapKey: "teamTend", mapping: { "我愿意为团队牺牲个人输出/生存":"高", "我可以接受适度的团队要求":"中等", "我优先考虑自己玩得爽，团队次要":"低" } },
+        { id: 8, text: "更喜欢哪种战斗节奏？", options: ["大秘境（快节奏、频繁AOE）", "团本（站桩、多单体）", "都喜欢"], mapKey: "pace", mapping: { "大秘境（快节奏、频繁AOE）":"大秘境", "团本（站桩、多单体）":"团本", "都喜欢":"都喜欢" } },
+        { id: 9, text: "循环倾向", options: ["固定循环（肌肉记忆）", "优先级判断（灵活决策）", "都行"], mapKey: "rotation", mapping: { "固定循环（肌肉记忆）":"固定", "优先级判断（灵活决策）":"优先级", "都行":"固定,优先级" } }
+    ];
+
+    let userAnswers = new Array(questions.length).fill(null);
+    let currentPage = 0;
+    let quizSubmitted = false;
+    let autoJumpTimeout = null;
+
+    // DOM 元素
+    const pagesContainer = document.getElementById("pagesContainer");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressFill = document.getElementById("progressFill");
+    const currentIdxDisplay = document.getElementById("currentIdxDisplay");
+    const totalCountDisplay = document.getElementById("totalCountDisplay");
+    const navArea = document.getElementById("navButtonsArea");
+    const resultAreaDiv = document.getElementById("resultArea");
+    totalCountDisplay.innerText = `/ ${questions.length}题`;
+
+    // 构建分页 + 自动跳转绑定
+    function buildPages() {
+        pagesContainer.innerHTML = "";
+        questions.forEach((q, idx) => {
+            const pageDiv = document.createElement("div");
+            pageDiv.className = "question-page";
+            pageDiv.setAttribute("data-page-idx", idx);
+            let optionsHtml = `<div class="question-card">
+                <div class="q-num-badge">问题 ${idx+1} · 瑶服指引</div>
+                <div class="q-title">${q.text}</div>
+                <div class="options">`;
+            q.options.forEach(opt => {
+                const radioId = `q_${idx}_${opt.replace(/\s/g, '')}_${Date.now()}_${Math.random()}`;
+                optionsHtml += `
+                    <input type="radio" name="page_${idx}" value="${opt}" id="${radioId}">
+                    <label for="${radioId}" class="option-label">${opt}</label>
+                `;
+            });
+            optionsHtml += `</div></div>`;
+            pageDiv.innerHTML = optionsHtml;
+            pagesContainer.appendChild(pageDiv);
+            
+            // 预填已有答案
+            if(userAnswers[idx]) {
+                const radioToCheck = pageDiv.querySelector(`input[value="${userAnswers[idx]}"]`);
+                if(radioToCheck) radioToCheck.checked = true;
+            }
+            // 监听radio变化: 点击后存储 + 自动跳转 (重要)
+            const radios = pageDiv.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const selectedVal = e.target.value;
+                    userAnswers[idx] = selectedVal;
+                    updateProgressAndButtons();
+                    // 自动跳转到下一题 (除非最后一题)
+                    if (autoJumpTimeout) clearTimeout(autoJumpTimeout);
+                    autoJumpTimeout = setTimeout(() => {
+                        if (!quizSubmitted && idx === currentPage && userAnswers[idx] !== null) {
+                            if (currentPage === questions.length - 1) {
+                                // 最后一题: 自动提交
+                                if (userAnswers.every(a => a !== null)) {
+                                    computeAndShowResults();
+                                }
+                            } else {
+                                // 未完成全部，自动翻页
+                                if (currentPage === idx && currentPage + 1 < questions.length) {
+                                    goToPage(currentPage + 1);
+                                }
+                            }
+                        }
+                    }, 280); // 轻微延迟，让用户感知选中效果并自动跳转
+                });
+            });
+        });
+        updatePageVisibility();
+        updateProgressAndButtons();
+    }
+
+    function goToPage(pageIndex) {
+        if (quizSubmitted) return;
+        if (pageIndex >= 0 && pageIndex < questions.length) {
+            currentPage = pageIndex;
+            updatePageVisibility();
+        }
+    }
+
+    function updatePageVisibility() {
+        const pages = document.querySelectorAll('.question-page');
+        pages.forEach((page, idx) => {
+            if(idx === currentPage) {
+                page.classList.add('active-page');
+            } else {
+                page.classList.remove('active-page');
+            }
+        });
+        currentIdxDisplay.innerText = `第${currentPage+1}题`;
+        updateProgressAndButtons();
+    }
+
+    function updateProgressAndButtons() {
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        const percent = (answeredCount / questions.length) * 100;
+        progressFill.style.width = `${percent}%`;
+        // 按钮文字微调最后一页
+        if(currentPage === questions.length-1) {
+            nextBtn.innerText = "✨ 完成并推荐 ✨";
+        } else {
+            nextBtn.innerText = "下一题 ▶";
+        }
+    }
+
+    // 手动上一页
+    function goPrev() {
+        if(quizSubmitted) return;
+        if(currentPage > 0) {
+            goToPage(currentPage - 1);
+        }
+    }
+    // 手动下一页或提交
+    function goNextOrSubmit() {
+        if(quizSubmitted) return;
+        const curAns = userAnswers[currentPage];
+        if(!curAns) {
+            alert(`请先回答第 ${currentPage+1} 题再继续~`);
+            return;
+        }
+        if(currentPage === questions.length-1) {
+            if(userAnswers.every(a => a !== null)) {
+                computeAndShowResults();
+            } else {
+                alert("请确保所有题目均已作答");
+            }
+        } else {
+            goToPage(currentPage + 1);
+        }
+    }
+
+    // 匹配算法 (与之前一致，纯特征匹配)
+    function isSpecMatch(spec, qDef, userChoice) {
+        if(!userChoice) return false;
+        let requiredRaw = qDef.mapping ? qDef.mapping[userChoice] : userChoice;
+        if(!requiredRaw) return false;
+        const specVal = spec[qDef.mapKey];
+        if(!specVal) return false;
+        let requiredTags = requiredRaw.split(',');
+        let specTags = specVal.split(',');
+        for(let req of requiredTags) {
+            if(specTags.includes(req.trim())) return true;
+        }
+        if(qDef.id === 6 && userChoice === "无所谓") return true;
+        if(qDef.id === 2 && userChoice === "我就喜欢极难的！" && specVal === "极难") return true;
+        if(qDef.id === 1) {
+            if(requiredRaw === "无" && specVal === "无") return true;
+            if(requiredRaw === "少,极少" && (specVal === "少" || specVal === "极少" || specVal === "无")) return true;
+            if(requiredRaw === "较多,很多" && (specVal === "较多" || specVal === "很多")) return true;
+        }
+        return false;
+    }
+
+    function computeTopSpecs(answersObj) {
+        let scores = [];
+        for(let spec of specsData) {
+            let matchCount = 0, totalValid = 0;
+            for(let q of questions) {
+                const userChoice = answersObj[q.id];
+                if(!userChoice) continue;
+                totalValid++;
+                if(isSpecMatch(spec, q, userChoice)) matchCount++;
+            }
+            let ratio = totalValid === 0 ? 0 : (matchCount / totalValid);
+            const teamAns = answersObj[7];
+            let teamBonus = 0;
+            if(teamAns) {
+                if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") teamBonus = 0.07;
+                else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") teamBonus = 0.06;
+                else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") teamBonus = 0.05;
+                else if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "中等") teamBonus = 0.02;
+                else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "中等") teamBonus = 0.01;
+            }
+            scores.push({ spec, score: ratio + teamBonus });
+        }
+        scores.sort((a,b)=> b.score - a.score);
+        return scores.slice(0,3);
+    }
+
+    function generateReason(spec, answers) {
+        let reasons = [];
+        const rangeAns = answers[0];
+        if(rangeAns && spec.range === rangeAns) reasons.push(`⚔️ 偏好${rangeAns}姿态`);
+        const styleAns = answers[3];
+        if(styleAns) {
+            let mapStyle = styleAns === "高爆发（一波上天）" ? "爆发" : (styleAns === "平稳输出（持续压血）" ? "平稳" : "适中");
+            if(spec.style === mapStyle) reasons.push(`🎯 ${styleAns.slice(0,4)}风格契合`);
+        }
+        const teamAns = answers[7];
+        if(teamAns) {
+            if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") reasons.push(`🤝 团队灵魂，战友之盾`);
+            else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") reasons.push(`🌀 独狼之魂，操作至上`);
+            else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") reasons.push(`⚖️ 团队与自我平衡大师`);
+        }
+        if(reasons.length === 0) reasons.push(`✨ 与你的战斗直觉共鸣`);
+        return reasons.slice(0,2).join(" · ");
+    }
+
+    function computeAndShowResults() {
+        if(quizSubmitted) return;
+        let answerMap = {};
+        userAnswers.forEach((val, idx) => { answerMap[idx] = val; });
+        const topThree = computeTopSpecs(answerMap);
+        // 隐藏原始内容
+        document.getElementById("progressArea").style.display = "none";
+        pagesContainer.style.display = "none";
+        navArea.style.display = "none";
+        const hero = document.querySelector(".hero-header");
+        if(hero) hero.style.borderBottom = "none";
+        
+        let resultHtml = `<div class="result-area">
+            <div class="result-title">⚔️ 你的本命专精是：</div>
+            <div class="rec-list">`;
+        const borderColors = ["#d97706", "#3b82f6", "#10b981"];
+        topThree.forEach((item, idx) => {
+            const spec = item.spec;
+            const reasonText = generateReason(spec, answerMap);
+            const tagPart = `${spec.range} · ${spec.cast === "无" ? "瞬发" : (spec.cast === "少" ? "少量读条" : spec.cast === "较多" ? "读条核心" : "深度读条")} · ${spec.difficulty}`;
+            resultHtml += `
+                <div class="rec-item" style="border-left-color: ${borderColors[idx]};">
+                    <div class="rec-name">✨ ${spec.name} <span class="rec-tag">${tagPart}</span></div>
+                    <div class="rec-reason">${reasonText}</div>
+                    <div class="rec-reason" style="margin-top: 5px; font-size:0.75rem;">🎲 根据你的选择深度匹配</div>
+                </div>
+            `;
+        });
+        resultHtml += `</div><div class="footnote">※ 推荐基于操作风格、团队态度与战斗偏好，并非强度排名。<br>瑶服愿与你同行 Q群722409645</div>
+        <button class="reset-btn" id="resetQuizBtn">🔄 重新测试</button>
+        </div>`;
+        resultAreaDiv.innerHTML = resultHtml;
+        resultAreaDiv.style.display = "block";
+        quizSubmitted = true;
+        
+        const resetBtn = document.getElementById("resetQuizBtn");
+        if(resetBtn) {
+            resetBtn.addEventListener("click", () => {
+                // 重置所有并回到第一题
+                userAnswers.fill(null);
+                currentPage = 0;
+                quizSubmitted = false;
+                resultAreaDiv.style.display = "none";
+                document.getElementById("progressArea").style.display = "block";
+                pagesContainer.style.display = "block";
+                navArea.style.display = "flex";
+                // 重新构建页面
+                buildPages();
+                updateProgressAndButtons();
+                if(autoJumpTimeout) clearTimeout(autoJumpTimeout);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        }
+    }
+
+    // 绑定按钮事件
+    prevBtn.addEventListener("click", goPrev);
+    nextBtn.addEventListener("click", goNextOrSubmit);
+    
+    buildPages();
+</script>
+</body>
+</html>
