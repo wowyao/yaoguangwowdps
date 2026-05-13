@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>瑶服 · 本命输出专精适配问卷</title>
+    <title>瑶服 · 本命输出专精适配</title>
+    <!-- html2canvas 库：用于将整个卡片转为图片 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- QRCode.js 库：生成二维码 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,86 +16,133 @@
         }
 
         body {
-            background: #0a0f1c;
+            background: #0a0c15;
             font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
             padding: 1.5rem 1rem;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
-        /* 主卡片 */
+        /* 邪能绿动态背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 20%, #0a2f1a, #030a05, #010302);
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(80, 200, 60, 0.02) 0px, rgba(80, 200, 60, 0.02) 2px, transparent 2px, transparent 12px),
+                        repeating-linear-gradient(90deg, rgba(80, 200, 60, 0.02) 0px, rgba(80, 200, 60, 0.02) 2px, transparent 2px, transparent 12px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 主卡片 - 整个截图区域 */
         .quiz-container {
             max-width: 780px;
             width: 100%;
             margin: 0 auto;
-            background: rgba(8, 22, 36, 0.92);
-            backdrop-filter: blur(4px);
+            background: rgba(6, 16, 10, 0.85);
+            backdrop-filter: blur(12px);
             border-radius: 2.5rem;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(52, 112, 255, 0.3);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(80, 200, 60, 0.4), 0 0 20px rgba(60, 180, 40, 0.2);
             overflow: hidden;
             transition: all 0.2s;
         }
 
-        /* 头部大标题 + 副标题 */
+        /* 头部 */
         .hero-header {
             text-align: center;
-            padding: 1.8rem 1.5rem 0.8rem 1.5rem;
-            border-bottom: 1px solid #244b6e;
-            background: linear-gradient(145deg, #0a1727, #05131f);
+            padding: 1.2rem 1.5rem 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(10, 30, 15, 0.9), rgba(2, 12, 5, 0.95));
+            border-bottom: 2px solid #4cbf3a;
+            position: relative;
+        }
+        .hero-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #6eff4a, #b8ff8c, #6eff4a, transparent);
+        }
+        .server-tag {
+            font-size: 0.85rem;
+            color: #a5d6a5;
+            letter-spacing: 2px;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            opacity: 0.9;
         }
         .main-title {
             font-size: 1.9rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #f9e0a0, #c9a53b);
+            background: linear-gradient(135deg, #e2ffd6, #a5ff7a, #4cbe2a);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             letter-spacing: -0.3px;
-            text-shadow: 0 2px 3px rgba(0,0,0,0.2);
+            text-shadow: 0 0 15px rgba(80, 220, 50, 0.5);
         }
         .subtitle {
-            font-size: 0.9rem;
-            color: #b8d0ff;
-            margin-top: 0.5rem;
-            font-weight: 500;
-            word-break: keep-all;
-            background: #0f2638b3;
+            font-size: 1.1rem;
+            color: #c0e6b0;
+            margin-top: 0.6rem;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.4);
             display: inline-block;
-            padding: 0.2rem 1rem;
+            padding: 0.4rem 1.5rem;
             border-radius: 40px;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(100, 220, 70, 0.5);
+            letter-spacing: 0.5px;
         }
 
-        /* 进度条区域 */
+        /* 进度条 */
         .progress-area {
             padding: 1.2rem 2rem 0.5rem 2rem;
         }
         .progress-bar-bg {
-            background: #1e3349;
+            background: #1a2a1e;
             border-radius: 60px;
-            height: 8px;
+            height: 10px;
             width: 100%;
             overflow: hidden;
+            box-shadow: inset 0 1px 4px #00000055;
         }
         .progress-fill {
-            background: linear-gradient(90deg, #e4a22d, #ffcd6b);
+            background: linear-gradient(90deg, #3ba52a, #7eff4a, #3ba52a);
             width: 0%;
             height: 100%;
             border-radius: 60px;
-            transition: width 0.25s ease;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px #5eff40;
         }
         .counter-text {
             display: flex;
             justify-content: space-between;
             font-size: 0.8rem;
             margin-top: 0.5rem;
-            color: #b3caf5;
+            color: #b0d9a0;
             font-weight: 500;
         }
 
-        /* 分页主体 */
+        /* 分页区域 */
         .pages-wrapper {
             position: relative;
             min-height: 460px;
@@ -118,32 +169,34 @@
             }
         }
 
-        /* 卡片样式 */
+        /* 问题卡片 */
         .question-card {
-            background: #0e1a27cc;
+            background: rgba(10, 25, 15, 0.75);
+            backdrop-filter: blur(8px);
             border-radius: 2rem;
             padding: 1.8rem 1.5rem;
-            border: 1px solid #3c6085;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
+            border: 1px solid rgba(80, 200, 60, 0.4);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(150, 255, 100, 0.1);
         }
         .q-title {
             font-size: 1.45rem;
             font-weight: 700;
             line-height: 1.3;
             margin-bottom: 1rem;
-            color: #f2e8cf;
+            color: #eef4e2;
             letter-spacing: -0.2px;
         }
         .q-num-badge {
             display: inline-block;
-            background: #1f4b6e;
+            background: #2a6b2a;
             border-radius: 60px;
             font-size: 0.75rem;
-            padding: 0.2rem 0.8rem;
+            padding: 0.2rem 0.9rem;
             margin-bottom: 0.8rem;
-            color: #ffefb9;
-            font-weight: 500;
+            color: #e2ffc7;
+            font-weight: 600;
+            border: 1px solid #6eff5a;
+            box-shadow: 0 0 6px rgba(80, 255, 60, 0.4);
         }
         .options {
             display: flex;
@@ -152,102 +205,113 @@
             margin: 1.2rem 0 0.8rem;
         }
         .option-label {
-            background: #071a29;
-            border: 1px solid #2d5477;
+            background: rgba(6, 18, 8, 0.8);
+            border: 1px solid #3a8a3a;
             border-radius: 60px;
             padding: 0.7rem 1.5rem;
             cursor: pointer;
             font-weight: 500;
             font-size: 0.95rem;
-            color: #dfebff;
+            color: #d4f0c4;
             transition: all 0.2s;
             user-select: none;
+            backdrop-filter: blur(2px);
         }
         input[type="radio"] {
             display: none;
         }
         input[type="radio"]:checked + .option-label {
-            background: #c9771e;
-            border-color: #ffbc6e;
-            color: #0f1c24;
+            background: linear-gradient(135deg, #4cbf3a, #2d8a2a);
+            border-color: #b5ff8c;
+            color: #0f1f0a;
             font-weight: 700;
-            box-shadow: 0 0 0 2px rgba(255, 180, 70, 0.6);
+            box-shadow: 0 0 14px #6aff4a, inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            text-shadow: none;
         }
         .option-label:hover {
-            background: #1f4668;
-            border-color: #e6a645;
-            transform: scale(0.98);
+            background: #2a6b2a;
+            border-color: #8eff6e;
+            transform: scale(0.97);
+            color: #ffffff;
         }
 
-        /* 底部按钮 (隐藏上一题/下一题，但保留占位以支持功能；自动跳转后其实用不到点击跳转，但不移除，用备用) */
+        /* 按钮 */
         .nav-buttons {
             display: flex;
             justify-content: space-between;
-            margin-top: 1rem;
+            margin-top: 0.8rem;
             gap: 1rem;
             padding: 0 2rem 1.8rem 2rem;
         }
         .btn {
-            background: #142b3c;
+            background: rgba(20, 35, 22, 0.9);
             border: none;
-            padding: 0.6rem 1.2rem;
+            padding: 0.7rem 1.2rem;
             border-radius: 60px;
             font-weight: 600;
-            font-size: 0.85rem;
-            color: #e2edff;
+            font-size: 0.9rem;
+            color: #d9f7cf;
             cursor: pointer;
             transition: 0.2s;
             font-family: inherit;
-            border: 1px solid #3e6e8f;
+            border: 1px solid #3f8a3f;
             flex: 1;
             text-align: center;
+            backdrop-filter: blur(4px);
         }
         .btn-primary {
-            background: linear-gradient(95deg, #bd7b2a, #9b5e1f);
-            border-color: #e0a449;
-            color: white;
-            font-weight: bold;
+            background: linear-gradient(95deg, #2d7a2a, #1a5518);
+            border-color: #6eff5a;
+            color: #f0ffe8;
+            font-weight: 700;
+            box-shadow: 0 0 8px rgba(80, 255, 60, 0.4);
         }
         .btn-primary:hover {
-            background: linear-gradient(95deg, #dc953f, #b87324);
-        }
-        .btn-secondary {
-            background: #1f405b;
+            background: linear-gradient(95deg, #3fa33a, #2a7525);
+            transform: scale(0.97);
+            cursor: pointer;
+            box-shadow: 0 0 14px #6eff5a;
         }
         .btn-secondary:hover {
-            background: #2e577a;
-        }
-        .btn:active {
+            background: #2a5a2a;
+            border-color: #6eff5a;
             transform: scale(0.97);
         }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
         /* 结果区域 */
         .result-area {
             margin-top: 0;
             padding: 1.5rem 2rem 2rem;
-            background: #071a27e0;
-            border-top: 1px solid #936e34;
-            border-radius: 0 0 2rem 2rem;
+            background: rgba(5, 18, 8, 0.95);
+            border-top: 2px solid #4cbf3a;
+            width: 100%;
         }
         .result-title {
             font-size: 1.7rem;
             font-weight: bold;
             text-align: center;
-            color: #ffe5a3;
-            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e2ffc7, #a5ff7a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.2rem;
+            text-shadow: 0 0 10px rgba(80, 255, 60, 0.3);
         }
         .rec-list {
             display: flex;
             flex-direction: column;
             gap: 1.2rem;
         }
-        /* 修复黑色文字看不清: 强制白/金色系 */
         .rec-item {
-            background: #fef7e0;
+            background: #fef9e6;
             border-radius: 1.4rem;
             padding: 1.2rem 1.4rem;
             border-left: 8px solid;
-            transition: 0.1s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         }
         .rec-name {
             font-size: 1.4rem;
@@ -256,46 +320,105 @@
             flex-wrap: wrap;
             align-items: baseline;
             gap: 10px;
-            color: #1a2c3b;
+            color: #1a2c1a;
         }
         .rec-tag {
             font-size: 0.7rem;
-            background: #c9c2a8;
+            background: #d4e8c6;
             padding: 3px 10px;
             border-radius: 40px;
             font-weight: 600;
-            color: #1f2e3c;
+            color: #2a4a1a;
         }
         .rec-reason {
             margin-top: 8px;
-            color: #2c3e2f;
+            color: #3a5a2a;
             font-size: 0.85rem;
             line-height: 1.45;
             font-weight: 500;
         }
         .footnote {
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             margin-top: 1.2rem;
-            color: #cae0ff;
+            color: #b0d9a0;
         }
-        .reset-btn {
-            background: #302012;
+        /* 二维码容器 - 显示在截图底部 */
+        .qrcode-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-top: 1.2rem;
-            width: 100%;
-            border: none;
+            padding-top: 1rem;
+            border-top: 1px dashed #4cbf3a;
+        }
+        .qrcode-container {
+            background: white;
+            padding: 8px;
+            border-radius: 16px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .qrcode-container img {
+            width: 70px;
+            height: 70px;
+        }
+        .qrcode-text {
+            margin-left: 12px;
+            font-size: 0.7rem;
+            color: #a5d6a5;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .gen-img-btn, .reset-btn {
+            flex: 1;
+            text-align: center;
             padding: 0.7rem;
             border-radius: 60px;
-            color: #ffeaac;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: 0.2s;
-            border: 1px solid #d9952e;
+            border: none;
         }
-        .reset-btn:hover {
-            background: #4f351b;
-            color: white;
+        .gen-img-btn {
+            background: linear-gradient(95deg, #5a3a2a, #3d2a1a);
+            border: 1px solid #e0a449;
+            color: #ffeaac;
+        }
+        .reset-btn {
+            background: #2a3a1a;
+            border: 1px solid #6eff5a;
+            color: #e2ffc7;
+        }
+        .gen-img-btn:hover, .reset-btn:hover {
+            transform: scale(0.97);
+            filter: brightness(1.05);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2a1a;
+            color: #e2ffc7;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            z-index: 999;
+            box-shadow: 0 4px 12px black;
+            border-left: 4px solid #6eff5a;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
         @media (max-width: 550px) {
             .pages-wrapper {
@@ -314,18 +437,26 @@
             .main-title {
                 font-size: 1.5rem;
             }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .qrcode-text {
+                font-size: 0.6rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="quiz-container" id="quizApp">
-    <!-- 大标题 & 副标题 -->
     <div class="hero-header">
+        <div class="server-tag">✨ 瑶服 · 军团再临 ✨</div>
         <div class="main-title">你的本命输出专精是哪个？</div>
         <div class="subtitle">瑶服 Q群722409645</div>
     </div>
 
-    <!-- 进度条 -->
     <div class="progress-area" id="progressArea">
         <div class="progress-bar-bg">
             <div class="progress-fill" id="progressFill"></div>
@@ -336,21 +467,19 @@
         </div>
     </div>
 
-    <!-- 动态分页容器 -->
     <div class="pages-wrapper" id="pagesContainer"></div>
 
-    <!-- 底部按钮 (供手动切换备用，但自动跳转为主，用户也可以点，保留完整交互) -->
     <div class="nav-buttons" id="navButtonsArea">
         <button class="btn btn-secondary" id="prevBtn">◀ 上一题</button>
         <button class="btn btn-primary" id="nextBtn">下一题 ▶</button>
     </div>
 
-    <!-- 结果区域 (初始隐藏) -->
     <div id="resultArea" style="display: none;"></div>
 </div>
+<div id="toastMsg" class="toast-msg"></div>
 
 <script>
-    // ---------- 24专精数据 (特征匹配版，纯标签不涉及分数霸榜) ----------
+    // ---------- 24专精数据 ----------
     const specsData = [
         { name:"射击猎", range:"远程", cast:"少", difficulty:"简单", style:"爆发", scenario:"AOE", survival:"无所谓", swap:"快", teamTend:"中等", pace:"都喜欢", rotation:"优先级" },
         { name:"武器战", range:"近战", cast:"无", difficulty:"较难", style:"爆发", scenario:"AOE", survival:"硬一点", swap:"可以慢", teamTend:"低", pace:"团本", rotation:"优先级" },
@@ -378,7 +507,7 @@
         { name:"兽王猎", range:"远程", cast:"无", difficulty:"简单", style:"适中", scenario:"单体", survival:"无所谓", swap:"快", teamTend:"中等", pace:"都喜欢", rotation:"固定" }
     ];
 
-    // ---------- 10道题定义 ----------
+    // 10道问卷
     const questions = [
         { id: 0, text: "你喜欢近战还是远程？", options: ["近战", "远程"], mapKey: "range", mapping: null },
         { id: 1, text: "你能接受读条技能吗？", options: ["完全不读条（瞬发爽感）", "少量读条可以接受", "读条是核心玩法（法师/术士魂）"], mapKey: "cast", mapping: { "完全不读条（瞬发爽感）":"无", "少量读条可以接受":"少,极少", "读条是核心玩法（法师/术士魂）":"较多,很多" } },
@@ -395,9 +524,8 @@
     let userAnswers = new Array(questions.length).fill(null);
     let currentPage = 0;
     let quizSubmitted = false;
-    let autoJumpTimeout = null;
+    let autoJump = null;
 
-    // DOM 元素
     const pagesContainer = document.getElementById("pagesContainer");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
@@ -408,124 +536,14 @@
     const resultAreaDiv = document.getElementById("resultArea");
     totalCountDisplay.innerText = `/ ${questions.length}题`;
 
-    // 构建分页 + 自动跳转绑定
-    function buildPages() {
-        pagesContainer.innerHTML = "";
-        questions.forEach((q, idx) => {
-            const pageDiv = document.createElement("div");
-            pageDiv.className = "question-page";
-            pageDiv.setAttribute("data-page-idx", idx);
-            let optionsHtml = `<div class="question-card">
-                <div class="q-num-badge">问题 ${idx+1} · 瑶服指引</div>
-                <div class="q-title">${q.text}</div>
-                <div class="options">`;
-            q.options.forEach(opt => {
-                const radioId = `q_${idx}_${opt.replace(/\s/g, '')}_${Date.now()}_${Math.random()}`;
-                optionsHtml += `
-                    <input type="radio" name="page_${idx}" value="${opt}" id="${radioId}">
-                    <label for="${radioId}" class="option-label">${opt}</label>
-                `;
-            });
-            optionsHtml += `</div></div>`;
-            pageDiv.innerHTML = optionsHtml;
-            pagesContainer.appendChild(pageDiv);
-            
-            // 预填已有答案
-            if(userAnswers[idx]) {
-                const radioToCheck = pageDiv.querySelector(`input[value="${userAnswers[idx]}"]`);
-                if(radioToCheck) radioToCheck.checked = true;
-            }
-            // 监听radio变化: 点击后存储 + 自动跳转 (重要)
-            const radios = pageDiv.querySelectorAll('input[type="radio"]');
-            radios.forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    const selectedVal = e.target.value;
-                    userAnswers[idx] = selectedVal;
-                    updateProgressAndButtons();
-                    // 自动跳转到下一题 (除非最后一题)
-                    if (autoJumpTimeout) clearTimeout(autoJumpTimeout);
-                    autoJumpTimeout = setTimeout(() => {
-                        if (!quizSubmitted && idx === currentPage && userAnswers[idx] !== null) {
-                            if (currentPage === questions.length - 1) {
-                                // 最后一题: 自动提交
-                                if (userAnswers.every(a => a !== null)) {
-                                    computeAndShowResults();
-                                }
-                            } else {
-                                // 未完成全部，自动翻页
-                                if (currentPage === idx && currentPage + 1 < questions.length) {
-                                    goToPage(currentPage + 1);
-                                }
-                            }
-                        }
-                    }, 280); // 轻微延迟，让用户感知选中效果并自动跳转
-                });
-            });
-        });
-        updatePageVisibility();
-        updateProgressAndButtons();
+    function showToast(msg) {
+        const toast = document.getElementById("toastMsg");
+        toast.innerText = msg;
+        toast.style.opacity = "1";
+        setTimeout(() => toast.style.opacity = "0", 2500);
     }
 
-    function goToPage(pageIndex) {
-        if (quizSubmitted) return;
-        if (pageIndex >= 0 && pageIndex < questions.length) {
-            currentPage = pageIndex;
-            updatePageVisibility();
-        }
-    }
-
-    function updatePageVisibility() {
-        const pages = document.querySelectorAll('.question-page');
-        pages.forEach((page, idx) => {
-            if(idx === currentPage) {
-                page.classList.add('active-page');
-            } else {
-                page.classList.remove('active-page');
-            }
-        });
-        currentIdxDisplay.innerText = `第${currentPage+1}题`;
-        updateProgressAndButtons();
-    }
-
-    function updateProgressAndButtons() {
-        const answeredCount = userAnswers.filter(a => a !== null).length;
-        const percent = (answeredCount / questions.length) * 100;
-        progressFill.style.width = `${percent}%`;
-        // 按钮文字微调最后一页
-        if(currentPage === questions.length-1) {
-            nextBtn.innerText = "✨ 完成并推荐 ✨";
-        } else {
-            nextBtn.innerText = "下一题 ▶";
-        }
-    }
-
-    // 手动上一页
-    function goPrev() {
-        if(quizSubmitted) return;
-        if(currentPage > 0) {
-            goToPage(currentPage - 1);
-        }
-    }
-    // 手动下一页或提交
-    function goNextOrSubmit() {
-        if(quizSubmitted) return;
-        const curAns = userAnswers[currentPage];
-        if(!curAns) {
-            alert(`请先回答第 ${currentPage+1} 题再继续~`);
-            return;
-        }
-        if(currentPage === questions.length-1) {
-            if(userAnswers.every(a => a !== null)) {
-                computeAndShowResults();
-            } else {
-                alert("请确保所有题目均已作答");
-            }
-        } else {
-            goToPage(currentPage + 1);
-        }
-    }
-
-    // 匹配算法 (与之前一致，纯特征匹配)
+    // 匹配逻辑
     function isSpecMatch(spec, qDef, userChoice) {
         if(!userChoice) return false;
         let requiredRaw = qDef.mapping ? qDef.mapping[userChoice] : userChoice;
@@ -534,9 +552,7 @@
         if(!specVal) return false;
         let requiredTags = requiredRaw.split(',');
         let specTags = specVal.split(',');
-        for(let req of requiredTags) {
-            if(specTags.includes(req.trim())) return true;
-        }
+        for(let req of requiredTags) if(specTags.includes(req.trim())) return true;
         if(qDef.id === 6 && userChoice === "无所谓") return true;
         if(qDef.id === 2 && userChoice === "我就喜欢极难的！" && specVal === "极难") return true;
         if(qDef.id === 1) {
@@ -552,105 +568,190 @@
         for(let spec of specsData) {
             let matchCount = 0, totalValid = 0;
             for(let q of questions) {
-                const userChoice = answersObj[q.id];
-                if(!userChoice) continue;
+                const choice = answersObj[q.id];
+                if(!choice) continue;
                 totalValid++;
-                if(isSpecMatch(spec, q, userChoice)) matchCount++;
+                if(isSpecMatch(spec, q, choice)) matchCount++;
             }
-            let ratio = totalValid === 0 ? 0 : (matchCount / totalValid);
+            let ratio = totalValid ? matchCount/totalValid : 0;
             const teamAns = answersObj[7];
-            let teamBonus = 0;
-            if(teamAns) {
-                if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") teamBonus = 0.07;
-                else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") teamBonus = 0.06;
-                else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") teamBonus = 0.05;
-                else if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "中等") teamBonus = 0.02;
-                else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "中等") teamBonus = 0.01;
-            }
-            scores.push({ spec, score: ratio + teamBonus });
+            let bonus = 0;
+            if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") bonus = 0.07;
+            else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") bonus = 0.06;
+            else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") bonus = 0.05;
+            scores.push({ spec, score: ratio+bonus });
         }
-        scores.sort((a,b)=> b.score - a.score);
+        scores.sort((a,b)=>b.score-a.score);
         return scores.slice(0,3);
     }
 
+    // 推荐理由生成函数
     function generateReason(spec, answers) {
-        let reasons = [];
-        const rangeAns = answers[0];
-        if(rangeAns && spec.range === rangeAns) reasons.push(`⚔️ 偏好${rangeAns}姿态`);
-        const styleAns = answers[3];
-        if(styleAns) {
-            let mapStyle = styleAns === "高爆发（一波上天）" ? "爆发" : (styleAns === "平稳输出（持续压血）" ? "平稳" : "适中");
-            if(spec.style === mapStyle) reasons.push(`🎯 ${styleAns.slice(0,4)}风格契合`);
+        let parts = [];
+        if(answers[0] && spec.range === answers[0]) {
+            parts.push(`偏好${answers[0]}战斗`);
         }
         const teamAns = answers[7];
-        if(teamAns) {
-            if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") reasons.push(`🤝 团队灵魂，战友之盾`);
-            else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") reasons.push(`🌀 独狼之魂，操作至上`);
-            else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") reasons.push(`⚖️ 团队与自我平衡大师`);
+        if(teamAns === "我愿意为团队牺牲个人输出/生存" && spec.teamTend === "高") {
+            parts.push("团队之盾");
+        } else if(teamAns === "我优先考虑自己玩得爽，团队次要" && spec.teamTend === "低") {
+            parts.push("独狼之魂");
+        } else if(teamAns === "我可以接受适度的团队要求" && spec.teamTend === "中等") {
+            parts.push("团队与自我平衡");
         }
-        if(reasons.length === 0) reasons.push(`✨ 与你的战斗直觉共鸣`);
-        return reasons.slice(0,2).join(" · ");
+        if(parts.length === 0) {
+            parts.push("战斗直觉共鸣");
+        }
+        return parts.join(" · ");
     }
 
-    function computeAndShowResults() {
-        if(quizSubmitted) return;
-        let answerMap = {};
-        userAnswers.forEach((val, idx) => { answerMap[idx] = val; });
-        const topThree = computeTopSpecs(answerMap);
-        // 隐藏原始内容
-        document.getElementById("progressArea").style.display = "none";
-        pagesContainer.style.display = "none";
-        navArea.style.display = "none";
-        const hero = document.querySelector(".hero-header");
-        if(hero) hero.style.borderBottom = "none";
-        
-        let resultHtml = `<div class="result-area">
+    // 截图分享：截取整个卡片 .quiz-container，二维码已在结果区内
+    async function captureFullCard() {
+        const cardElement = document.querySelector('.quiz-container');
+        if (!cardElement) {
+            showToast("未找到截图区域");
+            return;
+        }
+        try {
+            showToast("正在生成图片，请稍等...");
+            const originalWidth = cardElement.style.width;
+            cardElement.style.width = "600px";
+            await new Promise(r => setTimeout(r, 150));
+            const canvas = await html2canvas(cardElement, {
+                scale: 2.8,
+                backgroundColor: '#051a0c',
+                logging: false,
+                useCORS: false,
+                windowWidth: cardElement.scrollWidth,
+                windowHeight: cardElement.scrollHeight
+            });
+            cardElement.style.width = originalWidth;
+            const imgData = canvas.toDataURL('image/png');
+            const newWin = window.open();
+            if (newWin) {
+                newWin.document.write(`
+                    <html><head><title>瑶服 · 本命专精分享图</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>body { margin:0; display:flex; justify-content:center; align-items:center; background:#0a0c15; min-height:100vh; } img { max-width:100%; height:auto; box-shadow:0 0 20px rgba(0,0,0,0.5); }</style>
+                    </head><body><img src="${imgData}" /></body></html>
+                `);
+                showToast("图片已生成，长按保存即可分享");
+            } else {
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imgData;
+                downloadLink.download = `yaofu_spec_${Date.now()}.png`;
+                downloadLink.click();
+                showToast("图片已生成，请查看下载文件");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("生成失败，可尝试刷新后重试");
+        }
+    }
+
+    // 渲染结果（底部加入二维码）
+    function displayResults(topThree, answerMap) {
+        const borderColors = ["#3ba52a", "#5fbf3a", "#2d8a2a"];
+        let recHtml = `<div class="result-area">
             <div class="result-title">⚔️ 你的本命专精是：</div>
             <div class="rec-list">`;
-        const borderColors = ["#d97706", "#3b82f6", "#10b981"];
         topThree.forEach((item, idx) => {
             const spec = item.spec;
-            const reasonText = generateReason(spec, answerMap);
-            const tagPart = `${spec.range} · ${spec.cast === "无" ? "瞬发" : (spec.cast === "少" ? "少量读条" : spec.cast === "较多" ? "读条核心" : "深度读条")} · ${spec.difficulty}`;
-            resultHtml += `
-                <div class="rec-item" style="border-left-color: ${borderColors[idx]};">
-                    <div class="rec-name">✨ ${spec.name} <span class="rec-tag">${tagPart}</span></div>
-                    <div class="rec-reason">${reasonText}</div>
-                    <div class="rec-reason" style="margin-top: 5px; font-size:0.75rem;">🎲 根据你的选择深度匹配</div>
-                </div>
-            `;
+            const reason = generateReason(spec, answerMap);
+            let castDesc = "瞬发";
+            if(spec.cast === "少") castDesc = "少量读条";
+            else if(spec.cast === "较多" || spec.cast === "很多") castDesc = "读条核心";
+            const tag = `${spec.range} · ${castDesc} · ${spec.difficulty}`;
+            recHtml += `<div class="rec-item" style="border-left-color: ${borderColors[idx]};">
+                <div class="rec-name">✨ ${spec.name} <span class="rec-tag">${tag}</span></div>
+                <div class="rec-reason">${reason}</div>
+                <div class="rec-reason" style="margin-top: 5px; font-size:0.75rem;">🎲 根据你的选择深度匹配</div>
+            </div>`;
         });
-        resultHtml += `</div><div class="footnote">※ 推荐基于操作风格、团队态度与战斗偏好，并非强度排名。<br>瑶服愿与你同行 Q群722409645</div>
-        <button class="reset-btn" id="resetQuizBtn">🔄 重新测试</button>
-        </div>`;
-        resultAreaDiv.innerHTML = resultHtml;
+        recHtml += `</div><div class="footnote">※ 推荐基于操作风格、团队态度与战斗偏好，并非强度排名。<br>瑶服与你同行 Q群722409645</div>
+        <div class="qrcode-section">
+            <div class="qrcode-container" id="qrcodeImg"></div>
+            <div class="qrcode-text">扫码立即测试<br>你的本命专精</div>
+        </div>
+        <div class="action-buttons">
+            <button class="gen-img-btn" id="genPosterBtn">📸 生成结果图片</button>
+            <button class="reset-btn" id="resetQuizBtn">🔄 重新测试</button>
+        </div></div>`;
+        resultAreaDiv.innerHTML = recHtml;
         resultAreaDiv.style.display = "block";
-        quizSubmitted = true;
         
-        const resetBtn = document.getElementById("resetQuizBtn");
-        if(resetBtn) {
-            resetBtn.addEventListener("click", () => {
-                // 重置所有并回到第一题
-                userAnswers.fill(null);
-                currentPage = 0;
-                quizSubmitted = false;
-                resultAreaDiv.style.display = "none";
-                document.getElementById("progressArea").style.display = "block";
-                pagesContainer.style.display = "block";
-                navArea.style.display = "flex";
-                // 重新构建页面
-                buildPages();
-                updateProgressAndButtons();
-                if(autoJumpTimeout) clearTimeout(autoJumpTimeout);
-                window.scrollTo({ top: 0, behavior: "smooth" });
+        // 生成二维码
+        const qrContainer = document.getElementById("qrcodeImg");
+        if (qrContainer) {
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, {
+                text: "https://wowyao.github.io/yaoguangwow/",
+                width: 70,
+                height: 70,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
             });
         }
+        
+        document.getElementById("genPosterBtn")?.addEventListener("click", captureFullCard);
+        document.getElementById("resetQuizBtn")?.addEventListener("click", () => {
+            userAnswers.fill(null);
+            currentPage = 0;
+            quizSubmitted = false;
+            resultAreaDiv.style.display = "none";
+            document.getElementById("progressArea").style.display = "block";
+            pagesContainer.style.display = "block";
+            navArea.style.display = "flex";
+            buildPages();
+            if(autoJump) clearTimeout(autoJump);
+            window.scrollTo({ top: 0 });
+        });
     }
 
-    // 绑定按钮事件
+    // 构建分页
+    function buildPages() {
+        pagesContainer.innerHTML = "";
+        questions.forEach((q, idx) => {
+            const pageDiv = document.createElement("div");
+            pageDiv.className = "question-page";
+            pageDiv.setAttribute("data-page-idx", idx);
+            let optsHtml = `<div class="question-card"><div class="q-num-badge">问题 ${idx+1} / ${questions.length}</div><div class="q-title">${q.text}</div><div class="options">`;
+            q.options.forEach(opt => {
+                const rid = `q_${idx}_${opt.replace(/\s/g, '')}_${Math.random()}`;
+                optsHtml += `<input type="radio" name="page_${idx}" value="${opt}" id="${rid}"><label for="${rid}" class="option-label">${opt}</label>`;
+            });
+            optsHtml += `</div></div>`;
+            pageDiv.innerHTML = optsHtml;
+            pagesContainer.appendChild(pageDiv);
+            if(userAnswers[idx]) { const radio = pageDiv.querySelector(`input[value="${userAnswers[idx]}"]`); if(radio) radio.checked = true; }
+            pageDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userAnswers[idx] = e.target.value;
+                    updateProgressAndButtons();
+                    if(autoJump) clearTimeout(autoJump);
+                    autoJump = setTimeout(() => {
+                        if(!quizSubmitted && idx === currentPage) {
+                            if(currentPage === questions.length-1) {
+                                if(userAnswers.every(a=>a!==null)) computeAndShowResults();
+                            } else if(currentPage+1 < questions.length) goToPage(currentPage+1);
+                        }
+                    }, 280);
+                });
+            });
+        });
+        updatePageVisibility();
+    }
+
+    function goToPage(p) { if(quizSubmitted) return; if(p>=0 && p<questions.length) { currentPage=p; updatePageVisibility(); } }
+    function updatePageVisibility() { document.querySelectorAll('.question-page').forEach((pg,i)=> i===currentPage? pg.classList.add('active-page'): pg.classList.remove('active-page')); currentIdxDisplay.innerText = `第${currentPage+1}题`; updateProgressAndButtons(); }
+    function updateProgressAndButtons() { const answered = userAnswers.filter(a=>a!==null).length; progressFill.style.width = `${(answered/questions.length)*100}%`; if(currentPage===questions.length-1) nextBtn.innerText = "✨ 完成并推荐 ✨"; else nextBtn.innerText = "下一题 ▶"; }
+    function goPrev() { if(currentPage>0) goToPage(currentPage-1); }
+    function goNextOrSubmit() { if(quizSubmitted) return; if(!userAnswers[currentPage]) { alert("请先回答本题"); return; } if(currentPage===questions.length-1) { if(userAnswers.every(a=>a!==null)) computeAndShowResults(); } else goToPage(currentPage+1); }
+    function computeAndShowResults() { if(quizSubmitted) return; let ansMap={}; userAnswers.forEach((v,i)=>ansMap[i]=v); const topThree = computeTopSpecs(ansMap); document.getElementById("progressArea").style.display="none"; pagesContainer.style.display="none"; navArea.style.display="none"; displayResults(topThree, ansMap); quizSubmitted=true; }
+
     prevBtn.addEventListener("click", goPrev);
     nextBtn.addEventListener("click", goNextOrSubmit);
-    
     buildPages();
 </script>
 </body>
