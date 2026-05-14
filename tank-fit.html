@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>瑶服 · 坦克潜质评估</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0e1a1a;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, #2c2e2a, #0f1412, #040807);
+            z-index: -2;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, rgba(200, 180, 100, 0.02) 0px, rgba(200, 180, 100, 0.02) 2px, transparent 2px, transparent 10px);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .quiz-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(20, 28, 24, 0.88);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 30px 45px rgba(0,0,0,0.6), 0 0 0 1px rgba(210,170,70,0.4), 0 0 12px rgba(210,170,70,0.3);
+            overflow: hidden;
+        }
+        .hero-header {
+            text-align: center;
+            padding: 1.6rem 1.5rem 1.2rem;
+            background: linear-gradient(135deg, #1f2a24, #0c1410);
+            border-bottom: 2px solid #c9a53b;
+            position: relative;
+        }
+        .hero-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e7bc5e, #ffdf9c, #e7bc5e, transparent);
+        }
+        .server-tag {
+            font-size: 0.85rem;
+            color: #e2c28b;
+            letter-spacing: 2px;
+            margin-bottom: 0.3rem;
+        }
+        .main-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff0cc, #e7bc5e, #c9992a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: #d4c098;
+            margin-top: 0.5rem;
+            background: #00000055;
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #c9a53b;
+        }
+        .progress-area {
+            padding: 1rem 2rem 0.2rem;
+        }
+        .progress-bar-bg {
+            background: #2d3a2e;
+            border-radius: 60px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #e7bc5e, #ffe0a3);
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .counter-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: #c2b280;
+        }
+        .pages-wrapper {
+            padding: 0.8rem 2rem 0.5rem;
+            min-height: 450px;
+        }
+        .question-page {
+            display: none;
+            opacity: 0;
+            transform: translateX(18px);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .question-page.active-page {
+            display: block;
+            animation: slideFade 0.28s forwards;
+        }
+        @keyframes slideFade {
+            from { opacity: 0; transform: translateX(18px);}
+            to { opacity: 1; transform: translateX(0);}
+        }
+        .question-card {
+            background: #1d2b22cc;
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 1.6rem;
+            border: 1px solid #c9a53b80;
+        }
+        .q-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: #f7edcd;
+            line-height: 1.35;
+        }
+        .q-num-badge {
+            display: inline-block;
+            background: #6a4e1e;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.9rem;
+            margin-bottom: 0.7rem;
+            color: #ffefc0;
+            font-weight: bold;
+            border: 1px solid #e7bc5e;
+        }
+        .star-rating {
+            display: flex;
+            gap: 0.6rem;
+            margin: 1.5rem 0 0.5rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .star-option {
+            background: #0f1d14;
+            border: 1px solid #7e6a3c;
+            border-radius: 40px;
+            padding: 0.6rem 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #e7dbbd;
+            text-align: center;
+            flex: 1;
+            min-width: 70px;
+            transition: all 0.2s;
+        }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + .star-option {
+            background: #e7bc5e;
+            border-color: #fff0b5;
+            color: #1f2c1a;
+            font-weight: 800;
+            box-shadow: 0 0 10px #ffdf9c;
+        }
+        .star-option:hover {
+            background: #6a4e1e;
+            transform: scale(0.96);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            padding: 0.2rem 2rem 1.8rem;
+        }
+        .btn {
+            background: #2e3b2c;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #f2e2bc;
+            cursor: pointer;
+            border: 1px solid #c9a53b;
+            flex: 1;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(95deg, #b87c2a, #8b5a1c);
+            color: #fff3df;
+            font-weight: 700;
+        }
+        .btn-primary:hover, .btn-secondary:hover { transform: scale(0.97); filter: brightness(1.05); }
+        .result-area {
+            padding: 1.8rem 2rem 2rem;
+            background: #111f18e6;
+            border-top: 2px solid #e7bc5e;
+        }
+        .score-badge { text-align: center; margin: 0.5rem 0 1rem; }
+        .score-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffe5a3, #e7bc5e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .rank-label {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffe1a0;
+            margin-left: 0.5rem;
+        }
+        .radar-container {
+            max-width: 320px;
+            margin: 0 auto 1rem;
+            background: #1c2b1faa;
+            border-radius: 24px;
+            padding: 0.6rem;
+        }
+        canvas { width: 100%; height: auto; background: transparent; }
+        .analysis-text {
+            background: #00000066;
+            padding: 1rem 1.2rem;
+            border-radius: 1.5rem;
+            margin: 1rem 0;
+            color: #f2e2bc;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-line;
+            border-left: 5px solid #e7bc5e;
+        }
+        .qrcode-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed #e7bc5e;
+        }
+        .qrcode-container { background: white; border-radius: 16px; padding: 6px; }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .reset-btn {
+            background: #3a4526;
+            border: 1px solid #e7bc5e;
+            color: #ffe0a3;
+            flex: 1;
+            text-align: center;
+            padding: 0.7rem;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .reset-btn:hover { background: #5e6a32; }
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c281c;
+            color: #ffefc0;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 999;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            border-left: 4px solid #e7bc5e;
+        }
+        @media (max-width: 550px) {
+            .pages-wrapper { padding: 0.5rem 1rem; }
+            .q-title { font-size: 1.1rem; }
+            .star-option { padding: 0.4rem 0.2rem; font-size: 0.7rem; min-width: 55px; }
+            .main-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="quizApp">
+    <div class="hero-header">
+        <div class="server-tag">⚔️ 瑶服 · 钢铁试炼 ⚔️</div>
+        <div class="main-title">你适合玩坦克吗？</div>
+        <div class="subtitle">测测你的坦克潜质 · 瑶服Q群722409645</div>
+    </div>
+    <div class="progress-area" id="progressArea">
+        <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="counter-text"><span id="currentIdxDisplay">第1题</span><span id="totalCountDisplay">/ 8题</span></div>
+    </div>
+    <div class="pages-wrapper" id="pagesContainer"></div>
+    <div class="nav-buttons" id="navButtonsArea">
+        <button class="btn btn-secondary" id="prevBtn">◀ 上一题</button>
+        <button class="btn btn-primary" id="nextBtn">下一题 ▶</button>
+    </div>
+    <div id="resultArea" style="display: none;"></div>
+</div>
+<div id="toastMsg" class="toast-msg"></div>
+
+<script>
+    const dimensions = ["心态稳定", "技能预判", "仇恨掌控", "队友照顾", "减伤自保", "副本学习", "路线节奏", "沟通领导"];
+    
+    const questions = [
+        { text: "心态稳定，临危不乱，知道什么时候开技能、什么时候风筝、如何处理ADD小怪等等。", dimIdx: 0 },
+        { text: "我知道BOSS的关键技能时间轴，会提前预留减伤/自疗技能，而不是血崩了才开。", dimIdx: 1 },
+        { text: "我习惯监控仇恨列表，知道什么时候该打仇恨技能，很少让DPS OT。", dimIdx: 2 },
+        { text: "我会主动调整怪物朝向和位置，让DPS能打背、治疗能站桩，减少团队压力。", dimIdx: 3 },
+        { text: "队伍血崩时，我会主动开启自身减伤/大自疗，优先减轻治疗压力。", dimIdx: 4 },
+        { text: "我乐于研究副本路线、小怪技能、BOSS机制，并愿意尝试更优打法。", dimIdx: 5 },
+        { text: "我能根据队友DPS、治疗蓝量、队伍配置，灵活决定拉怪数量与进度节奏。", dimIdx: 6 },
+        { text: "队伍没人指挥时，我愿意主动标记、喊开怪、决定跳怪路线。", dimIdx: 7 }
+    ];
+    
+    const scoreOptions = [
+        { value: 1, label: "❌ 完全做不到" },
+        { value: 2, label: "⚠️ 偶尔能做到" },
+        { value: 3, label: "🔄 有时能做到" },
+        { value: 4, label: "✅ 大多数能做到" },
+        { value: 5, label: "👑 完全能做到" }
+    ];
+    
+    let userScores = new Array(8).fill(null);
+    let currentPage = 0;
+    let quizSubmitted = false;
+    let autoJump = null;
+    let radarChart = null;
+    
+    const pagesContainer = document.getElementById("pagesContainer");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressFill = document.getElementById("progressFill");
+    const currentIdxDisplay = document.getElementById("currentIdxDisplay");
+    const totalCountDisplay = document.getElementById("totalCountDisplay");
+    const navArea = document.getElementById("navButtonsArea");
+    const resultAreaDiv = document.getElementById("resultArea");
+    totalCountDisplay.innerText = `/ ${questions.length}题`;
+    
+    function showToast(msg) {
+        const toast = document.getElementById("toastMsg");
+        toast.innerText = msg;
+        toast.style.opacity = "1";
+        setTimeout(() => toast.style.opacity = "0", 2500);
+    }
+    
+    function buildPages() {
+        pagesContainer.innerHTML = "";
+        questions.forEach((q, idx) => {
+            const pageDiv = document.createElement("div");
+            pageDiv.className = "question-page";
+            pageDiv.setAttribute("data-page-idx", idx);
+            let starsHtml = `<div class="question-card">
+                <div class="q-num-badge">第 ${idx+1} / 8 问 · 坦克意志</div>
+                <div class="q-title">${q.text}</div>
+                <div class="star-rating">`;
+            for (let opt of scoreOptions) {
+                starsHtml += `<input type="radio" name="q_${idx}" value="${opt.value}" id="q_${idx}_val${opt.value}"><label for="q_${idx}_val${opt.value}" class="star-option">${opt.label}</label>`;
+            }
+            starsHtml += `</div></div>`;
+            pageDiv.innerHTML = starsHtml;
+            pagesContainer.appendChild(pageDiv);
+            if (userScores[idx] !== null) {
+                const radio = pageDiv.querySelector(`input[value="${userScores[idx]}"]`);
+                if (radio) radio.checked = true;
+            }
+            const radios = pageDiv.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const selected = parseInt(e.target.value, 10);
+                    userScores[idx] = selected;
+                    updateProgress();
+                    if (autoJump) clearTimeout(autoJump);
+                    autoJump = setTimeout(() => {
+                        if (!quizSubmitted && idx === currentPage) {
+                            if (currentPage === questions.length - 1) {
+                                if (userScores.every(s => s !== null)) computeAndShowResults();
+                            } else if (currentPage + 1 < questions.length) goToPage(currentPage + 1);
+                        }
+                    }, 260);
+                });
+            });
+        });
+        updatePageVisibility();
+        updateProgress();
+    }
+    
+    function goToPage(page) {
+        if (quizSubmitted) return;
+        if (page >= 0 && page < questions.length) {
+            currentPage = page;
+            updatePageVisibility();
+        }
+    }
+    
+    function updatePageVisibility() {
+        const pages = document.querySelectorAll('.question-page');
+        pages.forEach((pg, i) => {
+            if (i === currentPage) pg.classList.add('active-page');
+            else pg.classList.remove('active-page');
+        });
+        currentIdxDisplay.innerText = `第${currentPage+1}题`;
+        updateProgress();
+    }
+    
+    function updateProgress() {
+        const answered = userScores.filter(s => s !== null).length;
+        const percent = (answered / questions.length) * 100;
+        progressFill.style.width = `${percent}%`;
+        if (currentPage === questions.length - 1) nextBtn.innerText = "⚔️ 完成试炼 ⚔️";
+        else nextBtn.innerText = "下一题 ▶";
+    }
+    
+    function goPrev() { if (currentPage > 0) goToPage(currentPage - 1); }
+    function goNextOrSubmit() {
+        if (quizSubmitted) return;
+        if (userScores[currentPage] === null) { alert("请先选择一个选项"); return; }
+        if (currentPage === questions.length - 1) {
+            if (userScores.every(s => s !== null)) computeAndShowResults();
+        } else goToPage(currentPage + 1);
+    }
+    
+    function getDimensionScores() {
+        let dimValues = new Array(8).fill(0);
+        for (let i = 0; i < questions.length; i++) dimValues[questions[i].dimIdx] = userScores[i];
+        return dimValues;
+    }
+    
+    function computeTotalPercent() {
+        const totalRaw = userScores.reduce((a,b) => a + b, 0);
+        return Math.round((totalRaw / 40) * 100);
+    }
+    
+    function getRankLabel(percent) {
+        if (percent === 100) return "坦克之神";
+        if (percent >= 95) return "万人敬仰的坦克神话";
+        if (percent >= 90) return "传说中的团队之魂";
+        if (percent >= 80) return "近乎完美的坦克指挥";
+        if (percent >= 70) return "团队依赖的钢铁城墙";
+        if (percent >= 60) return "游刃有余的老练坦克";
+        if (percent >= 50) return "可靠的团队基石";
+        if (percent >= 40) return "合格的团队之盾";
+        if (percent >= 30) return "能站稳，但还不够稳";
+        return "坦克新芽";
+    }
+    
+    // 综合自然语言分析（区分80分和100分）
+    function generateAnalysis(dimScores, percent) {
+        // 1. 整体定位（对80分和100分做明显区分）
+        let overall = "";
+        if (percent === 100) {
+            overall = "满分！你是真正的坦克之神，每一个细节都做到了极致。无论是心态、预判、仇恨、照顾队友、减伤规划、副本理解、节奏掌控还是指挥能力，你都无可挑剔。";
+        } else if (percent >= 95) {
+            overall = "你几乎达到了坦克的巅峰，各方面都近乎完美，只有极细微的地方还能锦上添花。";
+        } else if (percent >= 90) {
+            overall = "你是传奇级别的坦克，操作行云流水，意识超越常人，是团队最坚实的后盾。";
+        } else if (percent >= 80) {
+            overall = "你已经是近乎完美的坦克指挥，冷静果断，路线清晰，队友在你身后永远感到安心。但仍有一丝细微的提升空间，比如某些极端情况下的临场应变可以更极致。";
+        } else if (percent >= 70) {
+            overall = "你是团队依赖的钢铁城墙，存在感极强，开荒时你是最后的壁垒。";
+        } else if (percent >= 60) {
+            overall = "你已经是游刃有余的老练坦克，能根据队伍配置灵活调整。";
+        } else if (percent >= 50) {
+            overall = "你是可靠的团队基石，大多数情况下能稳住场面。";
+        } else if (percent >= 40) {
+            overall = "你是合格的团队之盾，基本素养具备，但仍有明显短板。";
+        } else if (percent >= 30) {
+            overall = "你能站稳，但还不够稳，面对高压容易手忙脚乱。";
+        } else {
+            overall = "你还在坦克的起步阶段，很多意识尚未建立。";
+        }
+        
+        // 2. 识别优势项（得分≥4）和短板项（得分≤2）
+        let strengths = [];
+        let weaknesses = [];
+        const dimNames = ["心态稳定", "技能预判", "仇恨掌控", "队友照顾", "减伤自保", "副本学习", "路线节奏", "沟通领导"];
+        for (let i = 0; i < dimScores.length; i++) {
+            if (dimScores[i] >= 4) strengths.push(dimNames[i]);
+            else if (dimScores[i] <= 2) weaknesses.push(dimNames[i]);
+        }
+        
+        // 生成优势描述
+        let strengthText = "";
+        if (strengths.length === 0) {
+            strengthText = "目前还没有特别突出的强项，各项能力都有待加强。";
+        } else if (strengths.length <= 2) {
+            strengthText = `你的突出优势在于 ${strengths.join("和")}，这让你在坦克基础职责上有一定保障。`;
+        } else {
+            strengthText = `你在 ${strengths.slice(0, -1).join("、")} 和 ${strengths.slice(-1)} 等多个方面都表现不错，这是成为优秀坦克的重要基础。`;
+        }
+        
+        // 生成短板描述及影响
+        let weaknessText = "";
+        if (weaknesses.length === 0) {
+            if (percent >= 90) weaknessText = "没有任何明显短板，所有维度都达到了顶尖水准。";
+            else if (percent >= 80) weaknessText = "各项能力非常均衡，几乎没有短板，只是个别细节还可以更精进。";
+            else weaknessText = "各项能力比较均衡，没有明显短板，继续保持和精进即可。";
+        } else if (weaknesses.length <= 2) {
+            weaknessText = `主要短板集中在 ${weaknesses.join("和")}，这两方面容易让你在高压局面下陷入被动。`;
+        } else {
+            weaknessText = `需要在 ${weaknesses.slice(0, -1).join("、")} 和 ${weaknesses.slice(-1)} 等方面多下功夫，这些正是坦克进阶的关键。`;
+        }
+        
+        // 3. 综合结论（适合坦克的程度）
+        let conclusion = "";
+        if (percent === 100) {
+            conclusion = "你就是为坦克而生的传奇！任何队伍拥有你都会感到无比幸运。请继续带领大家征服不可能。";
+        } else if (percent >= 90) {
+            conclusion = "你拥有顶尖坦克的所有素质，完全可以胜任任何高难挑战。保持这份热情，你就是团队的信仰。";
+        } else if (percent >= 80) {
+            conclusion = "你已经是顶级坦克，稍加打磨就能成为传说。建议挑战极限层或竞速，让细节更加完美。";
+        } else if (percent >= 60) {
+            conclusion = "你有优秀的坦克潜质，通过针对性练习可以成为团队核心。推荐继续磨练弱项，向更高层迈进。";
+        } else if (percent >= 40) {
+            conclusion = "你具备一定的坦克基础，通过系统练习可以成为合格的坦克。推荐从熊德或防战起步，容错率较高。";
+        } else {
+            conclusion = "目前坦克可能还不是你的最佳定位，建议先从输出或治疗熟悉副本节奏，慢慢积累经验。";
+        }
+        
+        return `${overall}\n\n${strengthText}\n${weaknessText}\n\n${conclusion}`;
+    }
+    
+    function renderRadar(dimScores) {
+        const canvas = document.getElementById("radarCanvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (radarChart) radarChart.destroy();
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: dimensions,
+                datasets: [{ label: '你的坦克素质 (1~5)', data: dimScores, backgroundColor: 'rgba(210,170,70,0.25)', borderColor: '#e7bc5e', borderWidth: 2, pointBackgroundColor: '#ffdf9c', pointBorderColor: '#6e4d1c', pointRadius: 4 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#d4c098' }, grid: { color: '#6e6a4e' }, pointLabels: { color: '#f2e2bc', font: { size: 10 } } } },
+                plugins: { legend: { labels: { color: '#ffefc0' } } }
+            }
+        });
+    }
+    
+    function displayResults(percent, dimScores, analysis, rank) {
+        const html = `
+            <div class="result-area">
+                <div class="score-badge">
+                    <span class="score-number">${percent}</span><span style="font-size:1.4rem;"> / 100</span>
+                    <span class="rank-label">· ${rank}</span>
+                </div>
+                <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
+                <div class="analysis-text">📊 综合分析<br>${analysis}</div>
+                <div class="qrcode-section">
+                    <div class="qrcode-container" id="qrcodeImg"></div>
+                    <div style="font-size:0.7rem; color:#e7bc5e;">扫码测你的输出本命专精</div>
+                </div>
+                <div class="action-buttons"><button class="reset-btn" id="resetTankBtn">🔄 重新测试</button></div>
+            </div>
+        `;
+        resultAreaDiv.innerHTML = html;
+        resultAreaDiv.style.display = "block";
+        const qrDiv = document.getElementById("qrcodeImg");
+        if (qrDiv) {
+            qrDiv.innerHTML = "";
+            new QRCode(qrDiv, { text: "https://wowyao.github.io/yaoguangwow/", width: 70, height: 70, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+        }
+        renderRadar(dimScores);
+        document.getElementById("resetTankBtn")?.addEventListener("click", () => {
+            userScores.fill(null);
+            currentPage = 0;
+            quizSubmitted = false;
+            resultAreaDiv.style.display = "none";
+            document.getElementById("progressArea").style.display = "block";
+            pagesContainer.style.display = "block";
+            navArea.style.display = "flex";
+            buildPages();
+            if (autoJump) clearTimeout(autoJump);
+            window.scrollTo({ top: 0 });
+        });
+    }
+    
+    function computeAndShowResults() {
+        if (quizSubmitted) return;
+        const percent = computeTotalPercent();
+        const dimScores = getDimensionScores();
+        const analysis = generateAnalysis(dimScores, percent);
+        const rank = getRankLabel(percent);
+        document.getElementById("progressArea").style.display = "none";
+        pagesContainer.style.display = "none";
+        navArea.style.display = "none";
+        displayResults(percent, dimScores, analysis, rank);
+        quizSubmitted = true;
+    }
+    
+    prevBtn.addEventListener("click", goPrev);
+    nextBtn.addEventListener("click", goNextOrSubmit);
+    buildPages();
+</script>
+</body>
+</html>
