@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>瑶光 · 军团再临 | 公平起步，免费毕业，社区同行</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f0e;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            color: #ece8e0;
+            scroll-behavior: smooth;
+        }
+
+        /* 邪能绿动态背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 20%, #0a2f1a, #030a05, #010302);
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, rgba(80, 200, 60, 0.03) 0px, rgba(80, 200, 60, 0.03) 2px, transparent 2px, transparent 12px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(80, 200, 60, 0.4);
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e2ffd6, #9eff6e, #4cbe2a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: #d4f0c4;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .nav-links a:hover {
+            color: #b3ff8f;
+        }
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #9eff6e;
+        }
+
+        /* 英雄区 - 邪能烈焰风格 */
+        .hero {
+            text-align: center;
+            padding: 6rem 1rem 5rem;
+            position: relative;
+            background: radial-gradient(ellipse at 50% 30%, #1e4a1a, #0a1f0a);
+            border-radius: 2rem;
+            margin: 2rem 0 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid #4cbf3a;
+        }
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, rgba(80, 200, 60, 0.08) 0px, rgba(80, 200, 60, 0.08) 2px, transparent 2px, transparent 15px),
+                        radial-gradient(circle at 20% 40%, rgba(80, 255, 60, 0.15), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero h1, .hero p {
+            position: relative;
+            z-index: 2;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e2ffd6, #9eff6e, #4cbe2a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .hero p {
+            font-size: 1.3rem;
+            color: #e2ffc7;
+            max-width: 700px;
+            margin: 0 auto;
+            text-shadow: 1px 1px 2px #0a2f1a;
+            font-weight: 500;
+        }
+
+        /* 特色卡片 */
+        .features {
+            padding: 3rem 0;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #c6ff9e;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: #6eff4a;
+            margin: 0.5rem auto 0;
+            border-radius: 4px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: #0e2a18cc;
+            backdrop-filter: blur(6px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            border: 1px solid #4cbf3a;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #9eff6e;
+            box-shadow: 0 0 12px rgba(80, 255, 60, 0.3);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: #e2ffc7;
+        }
+        .card p {
+            color: #c6e6b0;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        /* 公告区域 */
+        .announcements {
+            background: #0b1f12aa;
+            border-radius: 2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(4px);
+            border: 1px solid #4cbf3a;
+        }
+        .announcement-item {
+            border-bottom: 1px solid #3a7a3a;
+            padding: 1rem 0;
+        }
+        .announcement-item:last-child {
+            border-bottom: none;
+        }
+        .announcement-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #e2ffc7;
+        }
+        .announcement-date {
+            font-size: 0.75rem;
+            color: #aae68a;
+            margin-left: 1rem;
+        }
+        .announcement-desc {
+            margin-top: 0.3rem;
+            color: #d0f0b0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        /* 问卷入口双卡片 */
+        .quiz-section {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .quiz-card {
+            flex: 1;
+            background: #0e2a18cc;
+            backdrop-filter: blur(6px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            text-align: center;
+            border: 1px solid #4cbf3a;
+            transition: 0.2s;
+        }
+        .quiz-card:hover {
+            transform: scale(1.02);
+            border-color: #9eff6e;
+            box-shadow: 0 0 12px rgba(80, 255, 60, 0.3);
+        }
+        .quiz-card h3 {
+            font-size: 1.5rem;
+            color: #e2ffc7;
+            margin-bottom: 0.8rem;
+        }
+        .quiz-card p {
+            margin-bottom: 1.2rem;
+            color: #c6e6b0;
+        }
+        .btn-test {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: linear-gradient(95deg, #2d7a2a, #1a5518);
+            border-radius: 60px;
+            color: #e2ffc7;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+            border: 1px solid #6eff4a;
+        }
+        .btn-test:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(95deg, #3fa33a, #2a7525);
+            color: white;
+            box-shadow: 0 0 10px #6eff4a;
+        }
+
+        /* 加入我们 - 无按钮，仅显示群号 */
+        .join {
+            text-align: center;
+            padding: 2.5rem;
+            background: #0b1f12aa;
+            border-radius: 2rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(4px);
+            border: 1px solid #4cbf3a;
+        }
+        .join h2 {
+            font-size: 1.8rem;
+            color: #e2ffc7;
+            margin-bottom: 0.5rem;
+        }
+        .join p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+            color: #d0f0b0;
+        }
+        .qq-number {
+            font-size: 2rem;
+            font-weight: bold;
+            background: #00000066;
+            display: inline-block;
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            letter-spacing: 2px;
+            margin: 0.8rem 0;
+            font-family: monospace;
+            color: #c6ff9e;
+            border: 1px solid #6eff4a;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid #2a6b2a;
+            font-size: 0.8rem;
+            color: #aae68a;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                position: relative;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background: #0a2f1ae6;
+                backdrop-filter: blur(12px);
+                position: absolute;
+                top: 70px;
+                left: 0;
+                padding: 1rem;
+                border-radius: 1rem;
+                gap: 1rem;
+                z-index: 99;
+                border: 1px solid #4cbf3a;
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .quiz-section {
+                flex-direction: column;
+            }
+            .hero {
+                padding: 3rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo">⚔️ 瑶光 · 军团再临 ⚔️</div>
+        <button class="mobile-menu-btn" id="menuToggle" aria-label="菜单">☰</button>
+        <div class="nav-links" id="navLinks">
+            <a href="#">首页</a>
+            <a href="#features">特色</a>
+            <a href="#announce">公告</a>
+            <a href="#quiz">问卷</a>
+            <a href="#join">加入</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>瑶光 · 军团再临</h1>
+        <p>公平起步，免费毕业，社区同行</p>
+    </section>
+
+    <section id="features" class="features">
+        <h2 class="section-title">服务器特色</h2>
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h3>仿官机制</h3>
+                <p>技能数值、副本难度贴近官方设定，没有魔改，体验原汁原味的军团再临。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎯</div>
+                <h3>公平毕业</h3>
+                <p>无会员，一切装备道具游戏内获取，只要你坚持玩下去，就能毕业。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🏆</div>
+                <h3>特色玩法</h3>
+                <p>职业平衡、大秘境挑战赛、专精木桩赛、三橙、战袍等，丰富你的冒险旅途。</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🗣️</div>
+                <h3>活跃社区</h3>
+                <p>气氛友好的Q群，定期组织开荒、秘境挑战、带新活动。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="announce" class="announcements">
+        <h2 class="section-title" style="margin-bottom: 1rem;">近期公告</h2>
+        <div class="announcement-item">
+            <div class="announcement-title">奥法木桩挑战赛 <span class="announcement-date">2026-05-04</span></div>
+            <div class="announcement-desc">统一账号装备，比拼手法，根据秒伤获得秘境币。详情见群内公告。</div>
+        </div>
+        <div class="announcement-item">
+            <div class="announcement-title">奥法职业平衡 <span class="announcement-date">2026-04-28</span></div>
+            <div class="announcement-desc">加强飞弹触发概率，增加一些伤害，并解决一些站桩问题。降低蓝耗，降低控蓝的难度，减少发呆或3层弹幕。</div>
+        </div>
+        <div class="announcement-item">
+            <div class="announcement-title">劳动节专属福利 <span class="announcement-date">2026-04-24</span></div>
+            <div class="announcement-desc">完成萨格拉斯之墓英雄难度，即可给7版本任意装备+5，不可以给其他角色。<br>完成8个25+大秘境，即可获得专属纪念衬衣，四款任选其一，支持重复完成活动获取。</div>
+        </div>
+        <div style="text-align: right; margin-top: 0.8rem;"><a href="https://qm.qq.com/q/722409645" target="_blank" style="color:#9eff6e;">📢 查看全部 →</a></div>
+    </section>
+
+    <section id="quiz" class="quiz-section">
+        <div class="quiz-card">
+            <h3>🎯 输出专精测试</h3>
+            <p>24个输出专精，10道选择题，精准匹配你的本命专精。</p>
+            <a href="https://wowyao.github.io/yaoguangwow/" target="_blank" class="btn-test">开始测试 →</a>
+        </div>
+        <div class="quiz-card">
+            <h3>🛡️ 坦克潜质测试</h3>
+            <p>从心态、预判、团队意识等多维度评估你的坦克潜力。</p>
+            <a href="https://wowyao.github.io/yaoguangwow/tankfit.html" target="_blank" class="btn-test">开始测试 →</a>
+        </div>
+    </section>
+
+    <section id="join" class="join">
+        <h2>加入我们</h2>
+        <p>与志同道合的战友一起征战艾泽拉斯</p>
+        <div class="qq-number">🐧 722409645</div>
+        <p style="margin-top: 1rem; font-size: 0.8rem;">版本：军团再临 7.3.5 · 无会员 · 坚持即毕业</p>
+    </section>
+
+    <footer class="footer">
+        <!-- 页脚已按要求清空 -->
+    </footer>
+</div>
+
+<script>
+    const menuBtn = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('show');
+    });
+    const links = document.querySelectorAll('.nav-links a');
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('show');
+        });
+    });
+</script>
+</body>
+</html>
